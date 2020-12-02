@@ -20,6 +20,7 @@ public class DemoTextClustering
     public static void main(String[] args)
     {
         ClusterAnalyzer<String> analyzer = new ClusterAnalyzer<String>();
+        analyzer.setEncoder("suzlab2080-013");
         analyzer.addDocument("赵一", "流行, 流行, 流行, 流行, 流行, 流行, 流行, 流行, 流行, 流行, 蓝调, 蓝调, 蓝调, 蓝调, 蓝调, 蓝调, 摇滚, 摇滚, 摇滚, 摇滚");
         analyzer.addDocument("钱二", "爵士, 爵士, 爵士, 爵士, 爵士, 爵士, 爵士, 爵士, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲, 舞曲");
         analyzer.addDocument("张三", "古典, 古典, 古典, 古典, 民谣, 民谣, 民谣, 民谣");
@@ -28,6 +29,6 @@ public class DemoTextClustering
         analyzer.addDocument("马六", "古典, 古典, 古典, 古典, 古典, 古典, 古典, 古典, 摇滚");
         System.out.println(analyzer.kmeans(3));
         System.out.println(analyzer.repeatedBisection(3));
-        System.out.println(analyzer.repeatedBisection(1.0)); // 自动判断聚类数量k
+        System.out.println(analyzer.repeatedBisection(0.05)); // 自动判断聚类数量k 指标为cosine相似度
     }
 }

@@ -164,7 +164,7 @@ public class SparseVector extends TreeMap<Integer, Double>
     /**
      * Calculate the cosine value between vectors.
      */
-    double cosine(SparseVector vec1, SparseVector vec2)
+    static double cosine(SparseVector vec1, SparseVector vec2)
     {
         double norm1 = vec1.norm();
         double norm2 = vec2.norm();

@@ -18,6 +18,9 @@ import com.hankcs.hanlp.dictionary.stopword.CoreStopWordDictionary;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.utility.MathUtility;
+import com.hankcs.hanlp.mining.cluster.client.BertClient;
+import com.sun.jndi.ldap.Ber;
+import com.sun.jndi.ldap.BerDecoder;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +39,8 @@ public class ClusterAnalyzer<K>
     protected HashMap<K, Document<K>> documents_;
     protected Segment segment;
     protected MutableDoubleArrayTrieInteger vocabulary;
+    protected String ip;
+    protected BertClient bertencoder;
     static final int NUM_REFINE_LOOP = 30;
 
     public ClusterAnalyzer()
@@ -43,6 +48,7 @@ public class ClusterAnalyzer<K>
         documents_ = new HashMap<K, Document<K>>();
         segment = HanLP.newSegment();
         vocabulary = new MutableDoubleArrayTrieInteger();
+        bertencoder = new BertClient("ndarray", 5555, 5556, "suzlab2080-013");
     }
 
     protected int id(String word)
@@ -84,7 +90,7 @@ public class ClusterAnalyzer<K>
         return wordList;
     }
 
-    protected SparseVector toVector(List<String> wordList)
+    protected SparseVector toVector_(List<String> wordList)
     {
         SparseVector vector = new SparseVector();
         for (String word : wordList)
@@ -104,16 +110,31 @@ public class ClusterAnalyzer<K>
         return vector;
     }
 
-    /**
-     * 添加文档
-     *
-     * @param id       文档id
-     * @param document 文档内容
-     * @return 文档对象
-     */
-    public Document<K> addDocument(K id, String document)
+    protected SparseVector toVector(String[] wordList)
     {
-        return addDocument(id, preprocess(document));
+
+        SparseVector vector = new SparseVector();
+        List<Object> encodeRet = bertencoder.encode(wordList);
+        List<Float> res = (List<Float>) encodeRet.get(0);
+        for (int i = 0; i < res.size(); i++){
+            vector.put(i, Double.valueOf(String.valueOf(res.get(i))));
+        }
+//        for (String word : wordList)
+//        {
+//            int id = id(word);
+//
+//            Double f = vector.get(id);
+//            if (f == null)
+//            {
+//                f = 1.;
+//                vector.put(id, f);
+//            }
+//            else
+//            {
+//                vector.put(id, ++f);
+//            }
+//        }
+        return vector;
     }
 
     /**
@@ -123,9 +144,26 @@ public class ClusterAnalyzer<K>
      * @param document 文档内容
      * @return 文档对象
      */
-    public Document<K> addDocument(K id, List<String> document)
+    public Document<K> addDocument(K id, String document)
+    {
+        String[] doc_pre =  {document};
+        return addDocument(id, doc_pre);
+//        return addDocument(id, preprocess(document));
+
+    }
+
+    /**
+     * 添加文档
+     *
+     * @param id       文档id
+     * @param document 文档内容
+     * @return 文档对象
+     */
+//    public Document<K> addDocument(K id, List<String> document)
+    public Document<K> addDocument(K id, String[] document)
     {
         SparseVector vector = toVector(document);
+
         Document<K> d = new Document<K>(id, vector);
         return documents_.put(id, d);
     }
@@ -456,5 +494,10 @@ public class ClusterAnalyzer<K>
             f += fi[i] * ni[i] / docSize;
         }
         return f;
+    }
+
+    public void setEncoder(String ip){
+        this.ip = ip;
+        this.bertencoder = new BertClient("ndarray", 5555, 5556, ip);
     }
 }

@@ -289,7 +289,7 @@ public class Cluster<K> implements Comparable<Cluster<K>>
             int max_index = 0;
             for (int j = 0; j < centroids.size(); j++)
             {
-                double similarity = SparseVector.inner_product(d.feature(), centroids.get(j).feature());
+                double similarity = SparseVector.cosine(d.feature(), centroids.get(j).feature());
                 if (max_similarity < similarity)
                 {
                     max_similarity = similarity;
