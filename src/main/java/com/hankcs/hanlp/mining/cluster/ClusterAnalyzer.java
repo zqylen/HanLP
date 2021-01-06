@@ -43,14 +43,21 @@ public class ClusterAnalyzer<K>
     protected BertClient bertencoder;
     static final int NUM_REFINE_LOOP = 30;
 
-    public ClusterAnalyzer()
+    public ClusterAnalyzer(String sip)
     {
         documents_ = new HashMap<K, Document<K>>();
         segment = HanLP.newSegment();
         vocabulary = new MutableDoubleArrayTrieInteger();
-        bertencoder = new BertClient("ndarray", 5555, 5556, "suzlab2080-013");
+        ip = sip;
+        bertencoder = new BertClient("ndarray", 5555, 5556, ip);
     }
-
+    protected ClusterAnalyzer()
+    {
+        documents_ = new HashMap<K, Document<K>>();
+        segment = HanLP.newSegment();
+        vocabulary = new MutableDoubleArrayTrieInteger();
+        bertencoder = new BertClient("ndarray", 5555, 5556, ip);
+    }
     protected int id(String word)
     {
         int id = vocabulary.get(word);
